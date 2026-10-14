@@ -2,7 +2,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { Box, Crosshair, Layers, Maximize2, Minimize2, Minus, Plus, RotateCw, Ruler } from "lucide-react";
+import {
+  Box,
+  Crosshair,
+  DoorOpen,
+  Layers,
+  Maximize2,
+  Minimize2,
+  Minus,
+  Plus,
+  RotateCw,
+  Ruler,
+  Trash2,
+} from "lucide-react";
 import {
   COLORS,
   DEF_FEATURES,
@@ -10,14 +22,34 @@ import {
   FRAME_TYPES,
   PART_INFO,
   computeGeometry,
+  craneNote,
+  craneSpansFor,
+  mezzArea,
+  mezzNote,
+  mezzSpansFor,
   productsFor,
+  toggleCraneSpan,
+  toggleMezzSpan,
   type Config,
   type FeatureId,
   type Features,
   type FrameType,
+  type MezzSide,
   type PartId,
   type Roof,
 } from "./frames";
+import {
+  OPENING_KINDS,
+  WALLS,
+  defaultOpenings,
+  fitOpening,
+  maxOpeningHeight,
+  resolveOpenings,
+  wallRange,
+  type Opening,
+  type OpeningKind,
+  type WallId,
+} from "./openings";
 import FrameThumb from "./FrameThumb";
 import type { ViewMode } from "./BuildingModel";
 
@@ -64,6 +96,10 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
   const [bays, setBays] = useState(type.bays);
   const [roof, setRoof] = useState<Roof>(type.roof);
   const [features, setFeatures] = useState<Features>({ ...DEF_FEATURES, ...type.features });
+  const [mezzSide, setMezzSide] = useState<MezzSide>("right");
+  // undefined = default (the last span) until the user picks spans.
+  const [mezzSpans, setMezzSpans] = useState<number[] | undefined>();
+  const [craneSpans, setCraneSpans] = useState<number[] | undefined>();
 
   const [mode, setMode] = useState<ViewMode>("xray");
   const [explode, setExplode] = useState(0);
@@ -71,6 +107,12 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
   const [showDims, setShowDims] = useState(true);
   const [selected, setSelected] = useState<PartId | null>(null);
   const [resetKey, setResetKey] = useState("cs-p-0");
+
+  const [openings, setOpenings] = useState<Opening[]>(() => defaultOpenings(FRAME_TYPES[0]));
+  const [selOpening, setSelOpening] = useState<string | null>(null);
+  const [addWall, setAddWall] = useState<WallId>("front");
+  const [notice, setNotice] = useState<string | null>(null);
+  const nextId = useRef(1);
 
   const holder = useRef<HTMLDivElement>(null);
   const inView = useInView(holder, { once: true, margin: "300px" });
@@ -118,10 +160,73 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
       baySpacing: type.baySpacing,
       roof,
       features,
+      mezzSide,
+      mezzSpans,
+      craneSpans,
     }),
-    [width, eave, pitch, spans, bays, type.baySpacing, roof, features]
+    [width, eave, pitch, spans, bays, type.baySpacing, roof, features, mezzSide, mezzSpans, craneSpans]
   );
   const geo = useMemo(() => computeGeometry(config), [config]);
+  const resolved = useMemo(() => resolveOpenings(geo, openings), [geo, openings]);
+  const activeOpening = resolved.find((o) => o.id === selOpening) ?? null;
+
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(null), 4000);
+    return () => clearTimeout(t);
+  }, [notice]);
+
+  const handleSelect = useCallback((p: PartId | null) => {
+    setSelected(p);
+    if (p !== "door") setSelOpening(null);
+  }, []);
+
+  const pickOpening = (id: string | null) => {
+    setSelOpening(id);
+    setSelected(id ? "door" : null);
+  };
+
+  const wallLabel = (w: WallId) => WALLS.find((x) => x.id === w)!.label;
+
+  const addOpening = (kind: OpeningKind) => {
+    const f = fitOpening(geo, addWall, kind, 0, resolved);
+    if (!f) {
+      setNotice(
+        `No room for a ${OPENING_KINDS[kind].label.toLowerCase()} on the ${wallLabel(addWall).toLowerCase()} — try another wall or a larger building.`
+      );
+      return;
+    }
+    const id = `d${nextId.current++}`;
+    setOpenings([...resolved, { id, kind, wall: addWall, at: f.at }]);
+    pickOpening(id);
+  };
+
+  /** Re-fit one opening against the others; everything is committed at its resolved spot. */
+  const updateOpening = (
+    id: string,
+    wall: WallId,
+    at: number,
+    size?: { width: number; height: number }
+  ) => {
+    const o = resolved.find((x) => x.id === id);
+    if (!o) return;
+    const want = size ?? { width: o.width, height: o.height };
+    const f = fitOpening(geo, wall, o.kind, at, resolved.filter((x) => x.id !== id), want);
+    if (!f) {
+      setNotice(
+        size
+          ? `${OPENING_KINDS[o.kind].label} at ${want.width} m wide doesn't fit between the columns and other doors on the ${wallLabel(wall).toLowerCase()}.`
+          : `No room for that ${OPENING_KINDS[o.kind].label.toLowerCase()} on the ${wallLabel(wall).toLowerCase()}.`
+      );
+      return;
+    }
+    setOpenings(resolved.map((x) => (x.id === id ? { ...x, wall, ...f } : x)));
+  };
+
+  const removeOpening = (id: string) => {
+    setOpenings(resolved.filter((x) => x.id !== id));
+    if (selOpening === id) pickOpening(null);
+  };
 
   const applyType = (t: FrameType) => {
     setTypeId(t.id);
@@ -132,7 +237,12 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
     setBays(t.bays);
     setRoof(t.roof);
     setFeatures({ ...DEF_FEATURES, ...t.features });
+    setMezzSide("right");
+    setMezzSpans(undefined);
+    setCraneSpans(undefined);
     setSelected(null);
+    setOpenings(defaultOpenings(t));
+    setSelOpening(null);
     setExplode(0);
     setResetKey(`${t.id}-${Date.now()}`);
   };
@@ -238,10 +348,13 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   mode={mode}
                   explode={explode}
                   selected={selected}
-                  onSelect={setSelected}
+                  onSelect={handleSelect}
                   showDims={showDims}
                   autoRotate={autoRotate}
                   resetKey={resetKey}
+                  openings={resolved}
+                  selectedOpening={selOpening}
+                  onSelectOpening={pickOpening}
                 />
               ) : (
                 <div className="h-full w-full bg-slate-800" />
@@ -431,6 +544,222 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                     );
                   })}
                 </div>
+                {features.crane && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                    <span className="text-xs font-semibold text-slate-400">EOT crane in</span>
+                    {spans === 1 ? (
+                      <span
+                        className="rounded-md px-2.5 py-1 text-[11px] font-bold text-white"
+                        style={{ background: COLORS.crane }}
+                      >
+                        Full Span
+                      </span>
+                    ) : (
+                      <SpanToggles
+                        spans={spans}
+                        picked={craneSpansFor(spans, craneSpans)}
+                        color={COLORS.crane}
+                        onToggle={(i) => setCraneSpans(toggleCraneSpan(spans, craneSpans, i))}
+                        onAll={() => setCraneSpans(Array.from({ length: spans }, (_, i) => i))}
+                      />
+                    )}
+                    {geo.cranes.length > 0 && (
+                      <span className="ml-auto text-[11px] text-slate-500">
+                        {craneNote(geo)}
+                        {spans === 1 && " · the bridge spans column to column"}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {features.mezzanine && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                    <span className="text-xs font-semibold text-slate-400">
+                      {spans === 1 ? "Mezzanine over the" : "Mezzanine in"}
+                    </span>
+                    {spans === 1
+                      ? (["left", "right", "full"] as MezzSide[]).map((sd) => (
+                          <button
+                            key={sd}
+                            onClick={() => setMezzSide(sd)}
+                            aria-pressed={mezzSide === sd}
+                            className={`rounded-md border px-2.5 py-1 text-[11px] font-bold transition-all ${
+                              mezzSide === sd
+                                ? "border-transparent text-white"
+                                : "border-white/15 text-slate-300 hover:text-white"
+                            }`}
+                            style={mezzSide === sd ? { background: COLORS.mezzanine } : undefined}
+                          >
+                            {sd === "full" ? "Full Width" : `${sd === "left" ? "Left" : "Right"} Half`}
+                          </button>
+                        ))
+                      : (
+                          <SpanToggles
+                            spans={spans}
+                            picked={mezzSpansFor(spans, mezzSpans)}
+                            color={COLORS.mezzanine}
+                            onToggle={(i) => setMezzSpans(toggleMezzSpan(spans, mezzSpans, i))}
+                            onAll={() => setMezzSpans(Array.from({ length: spans }, (_, i) => i))}
+                          />
+                        )}
+                    {geo.mezzanines.length > 0 && (
+                      <span className="ml-auto text-[11px] text-slate-500">
+                        {mezzNote(geo, spans, mezzSide)}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-5 border-t border-white/10 pt-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <DoorOpen size={13} /> Entrances
+                  </span>
+                  <span className="text-[10px] text-slate-500">
+                    Kept clear of columns and braced bays
+                  </span>
+                </div>
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold text-slate-400">Add to</span>
+                  {WALLS.map((w) => (
+                    <button
+                      key={w.id}
+                      onClick={() => setAddWall(w.id)}
+                      aria-pressed={addWall === w.id}
+                      className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold transition-all ${
+                        addWall === w.id
+                          ? "border-brand-orange bg-brand-orange text-white"
+                          : "border-white/15 bg-white/5 text-slate-300"
+                      }`}
+                    >
+                      {w.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(Object.keys(OPENING_KINDS) as OpeningKind[]).map((k) => (
+                    <motion.button
+                      key={k}
+                      whileTap={{ scale: 0.94 }}
+                      onClick={() => addOpening(k)}
+                      className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:border-white/30 hover:text-white"
+                    >
+                      <Plus size={11} />
+                      {OPENING_KINDS[k].label}
+                      <span className="text-[10px] font-normal text-slate-500">
+                        {OPENING_KINDS[k].width}×{OPENING_KINDS[k].height} m
+                      </span>
+                    </motion.button>
+                  ))}
+                </div>
+                {notice && (
+                  <p className="mt-2 rounded-lg bg-amber-500/10 px-3 py-2 text-[11px] text-amber-300">
+                    {notice}
+                  </p>
+                )}
+
+                {resolved.length > 0 && (
+                  <ul className="mt-3 space-y-1.5">
+                    {resolved.map((o) => {
+                      const on = o.id === selOpening;
+                      const [lo, hi] = wallRange(geo, o.wall);
+                      const spec = OPENING_KINDS[o.kind];
+                      const maxH = Math.max(
+                        spec.heightRange[0],
+                        Math.min(
+                          spec.heightRange[1],
+                          Math.floor(maxOpeningHeight(geo, o.wall, o.at, o.width) * 10) / 10
+                        )
+                      );
+                      return (
+                        <li
+                          key={o.id}
+                          className={`rounded-lg border px-3 py-2 transition-colors ${
+                            on ? "border-brand-orange bg-brand-orange/10" : "border-white/10 bg-white/5"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => pickOpening(on ? null : o.id)}
+                              className="flex-1 text-left text-xs font-semibold text-slate-200"
+                            >
+                              {OPENING_KINDS[o.kind].label}
+                              <span className="ml-2 font-normal text-slate-500">
+                                {wallLabel(o.wall)} · {o.width}×{o.height} m
+                              </span>
+                            </button>
+                            <button
+                              onClick={() => removeOpening(o.id)}
+                              title="Remove entrance"
+                              aria-label={`Remove ${OPENING_KINDS[o.kind].label}`}
+                              className="rounded-md p-1 text-slate-500 hover:bg-white/10 hover:text-red-400"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                          {on && (
+                            <div className="mt-3 space-y-3">
+                              <div className="flex flex-wrap gap-1.5">
+                                {WALLS.map((w) => (
+                                  <button
+                                    key={w.id}
+                                    onClick={() => updateOpening(o.id, w.id, o.wall === w.id ? o.at : 0)}
+                                    aria-pressed={o.wall === w.id}
+                                    className={`rounded-md border px-2 py-0.5 text-[10px] font-bold ${
+                                      o.wall === w.id
+                                        ? "border-brand-orange bg-brand-orange text-white"
+                                        : "border-white/15 text-slate-400 hover:text-slate-200"
+                                    }`}
+                                  >
+                                    {w.label}
+                                  </button>
+                                ))}
+                              </div>
+                              <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                                <Slider
+                                  label="Door Width"
+                                  value={o.width}
+                                  min={spec.widthRange[0]}
+                                  max={spec.widthRange[1]}
+                                  step={0.1}
+                                  unit="m"
+                                  onChange={(v) =>
+                                    updateOpening(o.id, o.wall, o.at, { width: +v.toFixed(1), height: o.height })
+                                  }
+                                />
+                                <Slider
+                                  label="Door Height"
+                                  value={o.height}
+                                  min={spec.heightRange[0]}
+                                  max={maxH}
+                                  step={0.1}
+                                  unit="m"
+                                  onChange={(v) =>
+                                    updateOpening(o.id, o.wall, o.at, { width: o.width, height: +v.toFixed(1) })
+                                  }
+                                />
+                              </div>
+                              {maxH < spec.heightRange[1] && (
+                                <p className="-mt-1 text-[10px] text-slate-500">
+                                  Height limited to {maxH} m by the eave, rafter or mezzanine above this spot.
+                                </p>
+                              )}
+                              <Slider
+                                label="Position along wall"
+                                value={o.at}
+                                min={lo}
+                                max={hi}
+                                step={0.25}
+                                unit="m"
+                                onChange={(v) => updateOpening(o.id, o.wall, v)}
+                              />
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
             </div>
           </div>
@@ -468,6 +797,11 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                 </div>
                 <div className="mt-0.5 text-sm font-bold text-slate-800">
                   {(width * geo.length).toLocaleString()} m²
+                  {geo.mezzanines.length > 0 && (
+                    <span className="ml-1.5 text-xs font-semibold text-violet-700">
+                      + {mezzArea(geo).toLocaleString()} m² mezzanine
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -484,7 +818,11 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-brand-orange">
                     ● {info.cat}
                   </div>
-                  <div className="mb-1 text-sm font-bold text-slate-800">{info.title}</div>
+                  <div className="mb-1 text-sm font-bold text-slate-800">
+                    {selected === "door" && activeOpening
+                      ? `${OPENING_KINDS[activeOpening.kind].label} — ${activeOpening.width} × ${activeOpening.height} m`
+                      : info.title}
+                  </div>
                   <p className="mb-3 text-xs leading-relaxed text-slate-600">{info.detail}</p>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     Products required
@@ -506,7 +844,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                 Products for This Config
               </h4>
               <ul className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
-                {productsFor(config).map((p) => (
+                {productsFor(config, resolved.length).map((p) => (
                   <li key={p} className="flex items-center gap-2 text-sm text-slate-300">
                     <span className="h-1.5 w-1.5 flex-none rounded-full bg-brand-orange" />
                     {p}
@@ -545,7 +883,7 @@ function Slider({
   unit: string;
   onChange: (v: number) => void;
 }) {
-  const pct = ((value - min) / (max - min)) * 100;
+  const pct = max > min ? ((value - min) / (max - min)) * 100 : 100;
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
@@ -579,5 +917,48 @@ function Slider({
         </span>
       </div>
     </div>
+  );
+}
+
+/** Per-span on/off chips plus an "All Spans" shortcut; at least one span stays selected. */
+function SpanToggles({
+  spans,
+  picked,
+  color,
+  onToggle,
+  onAll,
+}: {
+  spans: number;
+  picked: number[];
+  color: string;
+  onToggle: (i: number) => void;
+  onAll: () => void;
+}) {
+  const all = picked.length === spans;
+  const cls = (on: boolean) =>
+    `rounded-md border px-2.5 py-1 text-[11px] font-bold transition-all ${
+      on ? "border-transparent text-white" : "border-white/15 text-slate-300 hover:text-white"
+    }`;
+  return (
+    <>
+      {Array.from({ length: spans }, (_, i) => {
+        const on = picked.includes(i);
+        return (
+          <button
+            key={i}
+            onClick={() => onToggle(i)}
+            aria-pressed={on}
+            title={on && picked.length === 1 ? "At least one span stays selected" : undefined}
+            className={cls(on)}
+            style={on ? { background: color } : undefined}
+          >
+            {on ? "✓ " : "+ "}Span {i + 1}
+          </button>
+        );
+      })}
+      <button onClick={onAll} aria-pressed={all} className={cls(all)} style={all ? { background: color } : undefined}>
+        All Spans
+      </button>
+    </>
   );
 }

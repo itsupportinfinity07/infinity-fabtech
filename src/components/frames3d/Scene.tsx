@@ -1,10 +1,11 @@
 "use client";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { OrbitControls, ContactShadows, Grid } from "@react-three/drei";
 import BuildingModel, { type ViewMode } from "./BuildingModel";
 import { computeGeometry, type Config, type PartId } from "./frames";
+import type { ResolvedOpening } from "./openings";
 
 const VIEW_DIR = new THREE.Vector3(0.78, 0.5, 1).normalize();
 
@@ -74,6 +75,34 @@ function CameraRig({
   );
 }
 
+/** Key light that casts shadows, with its shadow camera fitted to the building. */
+function Sun({ radius }: { radius: number }) {
+  const ref = useRef<THREE.DirectionalLight>(null);
+  useLayoutEffect(() => {
+    const cam = ref.current?.shadow.camera;
+    if (!cam) return;
+    const e = radius * 1.5;
+    cam.left = -e;
+    cam.right = e;
+    cam.top = e;
+    cam.bottom = -e;
+    cam.near = 0.5;
+    cam.far = radius * 6;
+    cam.updateProjectionMatrix();
+  }, [radius]);
+  return (
+    <directionalLight
+      ref={ref}
+      position={[radius, radius * 1.4, radius * 0.7]}
+      intensity={2.6}
+      castShadow
+      shadow-mapSize={[2048, 2048]}
+      shadow-bias={-0.0004}
+      shadow-normalBias={0.04}
+    />
+  );
+}
+
 export default function Scene({
   config,
   mode,
@@ -83,6 +112,9 @@ export default function Scene({
   showDims,
   autoRotate,
   resetKey,
+  openings,
+  selectedOpening,
+  onSelectOpening,
 }: {
   config: Config;
   mode: ViewMode;
@@ -92,12 +124,16 @@ export default function Scene({
   showDims: boolean;
   autoRotate: boolean;
   resetKey: string;
+  openings: ResolvedOpening[];
+  selectedOpening: string | null;
+  onSelectOpening: (id: string) => void;
 }) {
   const g = computeGeometry(config);
   const radius = Math.max(g.width, g.length) * 0.95;
 
   return (
     <Canvas
+      shadows
       dpr={[1, 1.8]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       camera={{ fov: 38, near: 0.5, far: 900 }}
@@ -105,10 +141,10 @@ export default function Scene({
       style={{ background: "linear-gradient(180deg,#F8FAFC 0%,#E9EEF5 55%,#DCE3EC 100%)" }}
     >
       <Suspense fallback={null}>
-        <hemisphereLight args={["#FFFFFF", "#B8C2CF", 1.15]} />
-        <directionalLight position={[radius, radius * 1.4, radius * 0.7]} intensity={2.1} />
+        <hemisphereLight args={["#FFFFFF", "#B8C2CF", 0.9]} />
+        <Sun radius={radius} />
         <directionalLight position={[-radius, radius * 0.8, -radius * 0.6]} intensity={0.7} />
-        <ambientLight intensity={0.45} />
+        <ambientLight intensity={0.3} />
 
         <BuildingModel
           config={config}
@@ -118,6 +154,9 @@ export default function Scene({
           onSelect={onSelect}
           showDims={showDims}
           labelFactor={Math.max(g.width, g.length) * 1.7}
+          openings={openings}
+          selectedOpening={selectedOpening}
+          onSelectOpening={onSelectOpening}
         />
 
         <Grid

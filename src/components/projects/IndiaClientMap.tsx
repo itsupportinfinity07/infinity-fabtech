@@ -1,206 +1,63 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import L from "leaflet";
+import { MapContainer, Marker, TileLayer, Tooltip, useMap } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import { MapPin, X } from "lucide-react";
+import { CLIENT_LOCATIONS, type ClientLocation } from "@/data/clientLocations";
+import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
 
-/* ─── Client locations with pre-projected coordinate positions (viewBox 800x750) ─── */
-const CLIENT_LOCATIONS = [
-  {
-    id: "indore",
-    city: "Indore",
-    state: "Madhya Pradesh",
-    x: 292.8,
-    y: 361.42,
-    clients: [
-      "Metal Profile Unit II (2016)",
-      "Metal Profile Unit III (2018)",
-      "Hi-Tech Metal Forming Unit I (2015)",
-      "Hi-Tech Metal Forming Unit II (2016)",
-      "Shyam Automotive-I, Indore (2016)",
-      "Shyam Automotive-II, Indore (2018)",
-      "Flexi Flex, Indore (2015)",
-      "Inno Flex & Opal Wear, Indore (2016)",
-      "Ajmera Metals, Indore",
-      "MB Jigson Hydraulics Pvt. Ltd., Indore",
-      "Shreyash Securities Pvt. Ltd. — WC-1 (2015)",
-      "Shreyash Securities Pvt. Ltd. — WC-2 (2016)",
-      "Shreyash Securities Pvt. Ltd. — WC-3 (2017)",
-      "Anant Agro, Indore (2016 & 2018)",
-    ],
-  },
-  {
-    id: "pithampur",
-    city: "Pithampur",
-    state: "Madhya Pradesh",
-    x: 289.92,
-    y: 363.39,
-    clients: [
-      "Bhagirath Coach & Metal Fabricators Pvt. Ltd.",
-      "MD Enterprises",
-      "DBL Central Warehouse (2019)",
-      "Jalpa Devi Engineering Pvt. Ltd. (2019)",
-      "Macleods Pharmaceuticals Ltd. — SEZ Unit (2019)",
-    ],
-  },
-  {
-    id: "ujjain",
-    city: "Ujjain",
-    state: "Madhya Pradesh",
-    x: 291.59,
-    y: 352.76,
-    clients: [
-      "Bhagirath Motors, Ujjain",
-      "ALIMCO Auxiliary Production Center, Ujjain",
-    ],
-  },
-  {
-    id: "ratlam",
-    city: "Ratlam",
-    state: "Madhya Pradesh",
-    x: 278.47,
-    y: 349.82,
-    clients: [
-      "Katariya Packaging, Ratlam",
-      "IPCA, Ratlam",
-      "Fortune Stone Limited (I & II), Chatterpur",
-    ],
-  },
-  {
-    id: "dewas",
-    city: "Dewas",
-    state: "Madhya Pradesh",
-    x: 296.21,
-    y: 356.72,
-    clients: ["Gupta Steel, Dewas"],
-  },
-  {
-    id: "nemawar",
-    city: "Nemawar",
-    state: "Madhya Pradesh",
-    x: 301.91,
-    y: 365.54,
-    clients: [
-      "Garg Warehouse, Nemawar",
-      "Khandelwal Agrihouse, Nemawar",
-      "Shree Salasar Logistics, Nemawar",
-      "Master Plast, Nemawar",
-      "Natural Grains, Indore",
-    ],
-  },
-  {
-    id: "badwah",
-    city: "Badwah",
-    state: "Madhya Pradesh",
-    x: 305.49,
-    y: 370.92,
-    clients: [
-      "Associated Alcohol, Unit-I, Badwah (2014)",
-      "Associated Alcohol, Unit-II, Badwah (2016)",
-      "Associated Alcohol, Unit-III, Badwah (2018)",
-    ],
-  },
-  {
-    id: "nimrani",
-    city: "Nimrani",
-    state: "Madhya Pradesh",
-    x: 289.75,
-    y: 371.23,
-    clients: ["Varad Polyfab, Nimrani"],
-  },
-  {
-    id: "rau",
-    city: "Rau",
-    state: "Madhya Pradesh",
-    x: 290.92,
-    y: 363.68,
-    clients: [
-      "Rasayan Agro, Rau",
-      "Deevin Seismic Systems Pvt. Ltd. (2019)",
-    ],
-  },
-  {
-    id: "bhopal",
-    city: "Bhopal",
-    state: "Madhya Pradesh",
-    x: 319.93,
-    y: 351.18,
-    clients: ["Commercial Synbag, Pithampur", "Prestige Foods Industries"],
-  },
-  {
-    id: "mundra",
-    city: "Mundra",
-    state: "Gujarat",
-    x: 185.66,
-    y: 359.15,
-    clients: [
-      "Transworld Terminal Pvt. Ltd. — Mundra",
-      "TG Terminal — Mundra",
-    ],
-  },
-  {
-    id: "gandhinagar",
-    city: "Gandhinagar",
-    state: "Gujarat",
-    x: 236.58,
-    y: 352.02,
-    clients: [
-      "Transworld Terminal Pvt. Ltd. (WH-4), Gujarat",
-      "TG Terminal, Gujarat",
-    ],
-  },
-  {
-    id: "ambala",
-    city: "Ambala",
-    state: "Haryana",
-    x: 308.84,
-    y: 211.83,
-    clients: ["Gurudwara, Ambala"],
-  },
-  {
-    id: "amravati",
-    city: "Amravati",
-    state: "Maharashtra",
-    x: 325.86,
-    y: 395.03,
-    clients: ["Shyam Indofab (P) Ltd., Amravati"],
-  },
-  {
-    id: "shirdi",
-    city: "Shirdi",
-    state: "Maharashtra",
-    x: 268.68,
-    y: 416.69,
-    clients: ["Atma Malik Dhyanpeeth, Shirdi, Shahpur, Nerla"],
-  },
-  {
-    id: "kolkata",
-    city: "Kolkata",
-    state: "West Bengal",
-    x: 511.07,
-    y: 364.2,
-    clients: ["Transworld Terminal Pvt. Ltd. — Kolkata"],
-  },
-  {
-    id: "goldstar",
-    city: "Sanawad",
-    state: "Madhya Pradesh",
-    x: 296.5,
-    y: 371.8,
-    clients: [
-      "Gold Star Warehouses (WH-I, II, III, IV, V)",
-      "Belmaks Metal India Ltd.",
-    ],
-  },
-];
+const BRAND = "#b91c1c";
 
-type LocationData = (typeof CLIENT_LOCATIONS)[number];
+function pinIcon(count: number, isActive: boolean) {
+  const size = isActive ? 36 : 30;
+  return L.divIcon({
+    className: "",
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    html: `<div style="width:${size}px;height:${size}px;border-radius:9999px;background:${BRAND};border:2px solid #fff;box-shadow:0 0 0 ${
+      isActive ? 5 : 3
+    }px rgba(185,28,28,0.28),0 2px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff;font:900 11px/1 system-ui,sans-serif">${count}</div>`,
+  });
+}
+
+function clusterIcon(cluster: { getChildCount(): number }) {
+  const n = cluster.getChildCount();
+  return L.divIcon({
+    className: "",
+    iconSize: [44, 44],
+    html: `<div style="width:44px;height:44px;border-radius:9999px;background:#1c1917;border:3px solid #fff;box-shadow:0 0 0 4px rgba(28,25,23,0.25),0 2px 8px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:#fff;font:900 13px/1 system-ui,sans-serif">${n}</div>`,
+  });
+}
+
+/** Pans/zooms the map to the selected location. */
+function FlyToActive({ active }: { active: ClientLocation | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (active) map.flyTo([active.lat, active.lng], Math.max(map.getZoom(), 9), { duration: 0.8 });
+  }, [active, map]);
+  return null;
+}
+
+const BOUNDS = L.latLngBounds(CLIENT_LOCATIONS.map((l) => [l.lat, l.lng] as [number, number]));
 
 export default function IndiaClientMap() {
-  const [active, setActive] = useState<LocationData | null>(null);
-  const [hovered, setHovered] = useState<string | null>(null);
+  const [active, setActive] = useState<ClientLocation | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  const totalClients = CLIENT_LOCATIONS.reduce((s, l) => s + l.clients.length, 0);
+  const totalClients = useMemo(
+    () => CLIENT_LOCATIONS.reduce((s, l) => s + l.clients.length, 0),
+    []
+  );
+
+  const select = (loc: ClientLocation | null) => {
+    setActive(loc);
+    if (loc && window.matchMedia("(max-width: 1023px)").matches) {
+      panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  };
 
   return (
     <div className="w-full">
@@ -214,111 +71,63 @@ export default function IndiaClientMap() {
             PEB Steel Buildings Delivered Across India
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
-            Click any orange marker to see all clients at that location.
+            Click a marker to see all clients at that location. The number on each marker is the
+            client count; zoom in or click a dark cluster to expand it.
           </p>
         </div>
         <div className="flex items-center gap-6 flex-shrink-0">
           <div className="text-center">
             <p className="text-2xl font-black text-brand-orange">{CLIENT_LOCATIONS.length}+</p>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cities</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Locations</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-black text-brand-blue dark:text-white">{totalClients}+</p>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Projects</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Clients Listed</p>
           </div>
         </div>
       </div>
 
       <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Map Container */}
-        <div
-          className="lg:col-span-2 relative rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg aspect-[800/750] w-full"
-          style={{ backgroundColor: "#f8fafc" }}
-        >
-          {/* Static SVG Map of India */}
-          <div className="absolute inset-0 pointer-events-none select-none">
-            <Image
-              src="/india-map.svg"
-              alt="India Client Map"
-              fill
-              className="object-cover"
-              priority
+        <div className="lg:col-span-2 relative rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg w-full h-[460px] sm:h-[560px] lg:h-[640px] isolate">
+          <MapContainer
+            bounds={BOUNDS}
+            boundsOptions={{ padding: [40, 40] }}
+            minZoom={4}
+            scrollWheelZoom={false}
+            className="h-full w-full"
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+              maxZoom={18}
             />
-          </div>
-
-          {/* Legend */}
-          <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl px-3 py-2">
-            <div className="h-3 w-3 rounded-full bg-brand-orange shadow-[0_0_0_3px_rgba(242,100,25,0.3)]" />
-            <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
-              Client Location
-            </span>
-          </div>
-
-          {/* Client markers rendered as absolute-positioned interactive divs */}
-          <div className="absolute inset-0 z-10">
-            {CLIENT_LOCATIONS.map((loc) => {
-              const isActive = active?.id === loc.id;
-              const isHovered = hovered === loc.id;
-              const leftPercent = (loc.x / 800) * 100;
-              const topPercent = (loc.y / 750) * 100;
-
-              return (
-                <div
+            <FlyToActive active={active} />
+            <MarkerClusterGroup
+              chunkedLoading
+              showCoverageOnHover={false}
+              maxClusterRadius={45}
+              iconCreateFunction={clusterIcon}
+            >
+              {CLIENT_LOCATIONS.map((loc) => (
+                <Marker
                   key={loc.id}
-                  style={{
-                    position: "absolute",
-                    left: `${leftPercent}%`,
-                    top: `${topPercent}%`,
-                    transform: "translate(-50%, -50%)",
-                    zIndex: isActive || isHovered ? 30 : 20,
-                  }}
-                  className="cursor-pointer"
-                  onClick={() => setActive(isActive ? null : loc)}
-                  onMouseEnter={() => setHovered(loc.id)}
-                  onMouseLeave={() => setHovered(null)}
+                  position={[loc.lat, loc.lng]}
+                  icon={pinIcon(loc.clients.length, active?.id === loc.id)}
+                  title={`${loc.city} — ${loc.clients.length} clients`}
+                  eventHandlers={{ click: () => select(loc) }}
                 >
-                  {/* Outer glowing ripple ring */}
-                  <div
-                    className={`absolute -inset-3 rounded-full transition-all duration-300 pointer-events-none ${
-                      isActive || isHovered
-                        ? "bg-brand-orange/20 scale-100"
-                        : "bg-transparent scale-50"
-                    }`}
-                  />
-
-                  {/* Inner orange circle pin */}
-                  <div
-                    className={`h-7 w-7 rounded-full border border-white/80 flex items-center justify-center shadow-md transition-all duration-300 ${
-                      isActive
-                        ? "bg-brand-orange scale-110"
-                        : "bg-brand-orange/95 hover:bg-brand-orange hover:scale-105"
-                    }`}
-                  >
-                    <span className="text-[9px] font-black text-white select-none">
-                      {loc.clients.length}
-                    </span>
-                  </div>
-
-                  {/* Label tooltip */}
-                  <div
-                    className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-0.5 rounded bg-slate-950/90 border border-slate-700 shadow-sm transition-all duration-200 pointer-events-none whitespace-nowrap z-50 ${
-                      isActive || isHovered
-                        ? "opacity-100 translate-y-0 scale-100"
-                        : "opacity-0 translate-y-1 scale-95"
-                    }`}
-                  >
-                    <p className="text-[9px] font-black text-white leading-none">
-                      {loc.city}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  <Tooltip direction="top" offset={[0, -16]}>
+                    <span className="font-bold">{loc.city}</span>
+                  </Tooltip>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
+          </MapContainer>
         </div>
 
         {/* Side panel */}
-        <div className="lg:col-span-1 flex flex-col gap-4">
+        <div ref={panelRef} className="lg:col-span-1 flex flex-col gap-4 lg:max-h-[640px]">
           {active ? (
             <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl border border-brand-orange/30 shadow-lg overflow-hidden flex flex-col">
               <div className="bg-white border-b border-slate-100 p-5 flex items-start justify-between gap-3">
@@ -335,7 +144,8 @@ export default function IndiaClientMap() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setActive(null)}
+                  onClick={() => select(null)}
+                  aria-label="Close location details"
                   className="flex-shrink-0 h-7 w-7 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center"
                 >
                   <X className="h-3.5 w-3.5 text-slate-600" />
@@ -378,7 +188,7 @@ export default function IndiaClientMap() {
                 {CLIENT_LOCATIONS.map((loc) => (
                   <button
                     key={loc.id}
-                    onClick={() => setActive(loc)}
+                    onClick={() => select(loc)}
                     className="w-full flex items-center gap-3 p-3 rounded-xl text-left hover:bg-brand-orange/5 border border-transparent hover:border-brand-orange/20 transition-all group"
                   >
                     <div className="flex-shrink-0 h-8 w-8 rounded-xl bg-brand-orange/10 group-hover:bg-brand-orange transition-colors flex items-center justify-center">
