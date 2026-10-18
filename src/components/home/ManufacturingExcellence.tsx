@@ -2,12 +2,12 @@
 
 import React from "react";
 import { Hammer, Database, Settings } from "lucide-react";
-import { companyConfig } from "@/data/company";
-import { landingContent } from "@/data/landing";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 const iconMap = [Settings, Database, Hammer];
 
 export default function ManufacturingExcellence() {
+  const { landing: landingContent, company: companyConfig } = useSiteContent();
   const infra = companyConfig.infrastructure;
   const content = landingContent.manufacturingExcellence;
 

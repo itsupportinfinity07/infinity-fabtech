@@ -3,11 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Clock, Send, MessageCircle } from "lucide-react";
-import { companyConfig } from "@/data/company";
-import { products } from "@/data/products";
-import { footerContent } from "@/data/footer";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 export default function Footer() {
+  const { company: companyConfig, products, footer: footerContent } = useSiteContent();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const content = footerContent;
@@ -33,7 +32,7 @@ export default function Footer() {
                 Infinity Fabtech
               </span>
               <span className="text-[9px] font-bold tracking-widest text-brand-orange uppercase leading-none mt-1">
-                Pvt. Ltd.
+                Private Limited
               </span>
             </Link>
             <p className="text-sm leading-relaxed text-slate-600">

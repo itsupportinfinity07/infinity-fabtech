@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { MapLocation } from "@/lib/map-types";
 
 const IndiaClientMap = dynamic(() => import("./IndiaClientMap"), {
   ssr: false,
@@ -11,6 +12,6 @@ const IndiaClientMap = dynamic(() => import("./IndiaClientMap"), {
   ),
 });
 
-export default function IndiaMapWrapper() {
-  return <IndiaClientMap />;
+export default function IndiaMapWrapper({ locations }: { locations: MapLocation[] }) {
+  return <IndiaClientMap locations={locations} />;
 }

@@ -9,4 +9,7 @@ export interface Project {
   description: string;
   highlights: string[];
   scope: string[];
+  /** Cover image path (public/). Replace with real site photos when available. */
+  image: string;
+  gallery: string[];
 }

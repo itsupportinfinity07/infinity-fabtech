@@ -1,4 +1,5 @@
 export interface Service {
+  sortOrder?: number;
   id: string;
   title: string;
   description: string;

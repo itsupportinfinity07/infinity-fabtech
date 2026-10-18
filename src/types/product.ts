@@ -1,4 +1,5 @@
 export interface Product {
+  sortOrder?: number;
   slug: string;
   name: string;
   category: string;

@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Shield, Award, CheckCircle2, LucideIcon } from "lucide-react";
-import { landingContent } from "@/data/landing";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 const iconMap: Record<string, LucideIcon> = {
   Award,
@@ -13,6 +13,7 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 export default function Hero() {
+  const { landing: landingContent } = useSiteContent();
   const content = landingContent.hero;
 
   const containerVariants = {
@@ -32,17 +33,19 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-brand-dark -mt-16 lg:-mt-20">
-      {/* Background Image with dark industrial gradient overlay */}
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-stone-700 -mt-16 lg:-mt-20">
+      {/* Background image: shown at near-full brightness; scrims only where text/nav need contrast */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 z-0 scale-105 transform transition-transform duration-[10s]"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat brightness-125 saturate-110 z-0 scale-105 transform transition-transform duration-[10s]"
         style={{ backgroundImage: "url('/images/hero-bg.png')" }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/90 to-transparent z-0" />
-      <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent z-0" />
-
-      {/* Grid background mesh overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem] z-0" />
+      {/* Left scrim behind the copy, fading out to reveal the photo */}
+      <div className="absolute inset-0 bg-gradient-to-r from-stone-900/85 via-stone-900/45 to-transparent z-0" />
+      {/* Soft top scrim so the transparent navbar stays legible */}
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-stone-900/70 to-transparent z-0" />
+      {/* Warm brand glow for a lighter, more inviting feel */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_85%_30%,rgba(251,146,60,0.28),transparent_60%)] z-0" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-stone-900/40 to-transparent z-0" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <motion.div
@@ -55,7 +58,7 @@ export default function Hero() {
           {content.trustBadge && (
             <motion.div
               variants={itemVariants}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-orange/15 border border-brand-orange/30 text-brand-orange-light text-xs font-bold uppercase tracking-wider mb-6"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 border border-brand-orange/40 text-brand-orange shadow-sm text-xs font-bold uppercase tracking-wider mb-6"
             >
               <Shield className="h-3.5 w-3.5" />
               {content.trustBadge}
@@ -77,7 +80,7 @@ export default function Hero() {
           {/* Description */}
           <motion.p
             variants={itemVariants}
-            className="text-base sm:text-lg text-slate-300 leading-relaxed mb-8 max-w-2xl"
+            className="text-base sm:text-lg text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.35)] leading-relaxed mb-8 max-w-2xl"
           >
             {content.description}
           </motion.p>
@@ -93,7 +96,7 @@ export default function Hero() {
             </Link>
             <Link
               href="/products"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/20 hover:border-white/35 px-7 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/50 hover:border-white/80 px-7 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all"
             >
               {content.secondaryCta}
             </Link>
@@ -102,19 +105,19 @@ export default function Hero() {
           {/* Trust Highlights Grid */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-white/10 pt-8"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-white/25 pt-8"
           >
             {content.highlights.map((highlight, idx) => {
               const icons = ["Award", "CheckCircle2", "Shield"];
               const TargetIcon = iconMap[icons[idx]] || Shield;
               return (
                 <div key={idx} className="flex items-center gap-3">
-                  <div className="rounded-lg bg-white/5 p-2 text-brand-orange">
+                  <div className="rounded-lg bg-white/90 p-2 text-brand-orange shadow-sm">
                     <TargetIcon className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="text-lg font-black text-white leading-none">{highlight.value}</p>
-                    <p className="text-xs text-slate-400 mt-1 font-medium">{highlight.label}</p>
+                    <p className="text-xs text-white/80 mt-1 font-medium">{highlight.label}</p>
                   </div>
                 </div>
               );

@@ -1,8 +1,11 @@
 import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { Calendar, MapPin, SquareStack, CheckCircle2, ChevronRight, Briefcase } from "lucide-react";
-import { projects, projectsPageContent } from "@/data/projects";
+import Image from "next/image";
+import { Calendar, MapPin, SquareStack, ChevronRight, Briefcase } from "lucide-react";
+import { getPage } from "@/lib/content/site";
+import { getMapLocations, getProjects } from "@/lib/content";
+import { descriptionToText } from "@/lib/richtext";
 import { constructMetadata } from "@/lib/metadata";
 import IndiaMapWrapper from "@/components/projects/IndiaMapWrapper";
 
@@ -12,8 +15,9 @@ export const metadata: Metadata = constructMetadata({
   slug: "projects",
 });
 
-export default function ProjectsPage() {
-  const content = projectsPageContent;
+export default async function ProjectsPage() {
+  const content = await getPage("projectsPage");
+  const [projects, locations] = await Promise.all([getProjects(), getMapLocations()]);
 
   return (
     <div className="bg-[#f8fafc] pb-24">
@@ -38,100 +42,69 @@ export default function ProjectsPage() {
 
       {/* Interactive India Map */}
       <section className="mt-16 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <IndiaMapWrapper />
+        <IndiaMapWrapper locations={locations} />
       </section>
 
       {/* Projects Grid Section */}
       <section className="mt-16 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {projects.map((project) => (
-            <div
+            <Link
               key={project.id}
-              className="relative overflow-hidden group p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/50 shadow-[0_15px_30px_-5px_rgba(15,23,42,0.04)] hover:shadow-[0_30px_60px_-15px_rgba(242,100,25,0.08)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+              href={`/projects/${project.id}`}
+              className="group overflow-hidden rounded-3xl bg-white border border-slate-200/50 shadow-[0_15px_30px_-5px_rgba(15,23,42,0.04)] hover:shadow-[0_30px_60px_-15px_rgba(242,100,25,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col"
             >
-              {/* Visual Accent Top Bar */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-orange via-brand-orange-light to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Cover image */}
+              <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                <Image
+                  src={project.image}
+                  alt={project.name}
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/70 via-transparent to-transparent" />
+                <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/95 text-brand-orange text-xs font-bold uppercase tracking-wider">
+                  <Briefcase className="h-3 w-3" />
+                  {project.type}
+                </span>
+                <span className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 text-xs text-white font-semibold">
+                  <MapPin className="h-3.5 w-3.5 text-brand-orange" />
+                  {project.location}
+                </span>
+              </div>
 
-              <div className="space-y-6">
-                {/* Type Badge & Location */}
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-orange/5 text-brand-orange text-xs font-bold uppercase tracking-wider">
-                    <Briefcase className="h-3 w-3" />
-                    {project.type}
-                  </span>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
-                    <MapPin className="h-3.5 w-3.5 text-brand-orange/70" />
-                    {project.location}
-                  </div>
-                </div>
-
-                {/* Project Title */}
+              {/* Project info */}
+              <div className="p-6 sm:p-8 flex flex-col flex-1 gap-4">
                 <div>
-                  <h2 className="text-2xl font-black text-brand-blue tracking-tight leading-tight group-hover:text-brand-orange transition-colors">
+                  <h2 className="text-xl sm:text-2xl font-black text-brand-blue tracking-tight leading-tight group-hover:text-brand-orange transition-colors">
                     {project.name}
                   </h2>
-                  <p className="text-xs text-slate-400 font-bold mt-1">
-                    Client: {project.client}
-                  </p>
+                  <p className="text-xs text-slate-400 font-bold mt-1">Client: {project.client}</p>
                 </div>
 
-                {/* Description */}
-                <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                  {project.description}
+                <p className="text-sm text-slate-500 leading-relaxed font-medium line-clamp-3">
+                  {descriptionToText(project.description)}
                 </p>
 
-                {/* Stats / Details */}
-                <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="flex items-center gap-2.5">
-                    <SquareStack className="h-5 w-5 text-brand-orange/75 shrink-0" />
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Total Area</p>
-                      <p className="text-sm font-black text-brand-blue mt-1 leading-none">{project.area}</p>
-                    </div>
+                <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-5 text-xs font-bold text-brand-blue">
+                    <span className="flex items-center gap-1.5">
+                      <SquareStack className="h-4 w-4 text-brand-orange/75" />
+                      {project.area}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4 text-brand-orange/75" />
+                      {project.year}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2.5">
-                    <Calendar className="h-5 w-5 text-brand-orange/75 shrink-0" />
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Year Completed</p>
-                      <p className="text-sm font-black text-brand-blue mt-1 leading-none">{project.year}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Highlights checklist */}
-                <div className="space-y-4 pt-6 border-t border-slate-100">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Project Highlights & Performance
-                  </p>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {project.highlights.map((highlight, i) => (
-                      <li
-                        key={i}
-                        className="bg-[#f8fafc] border border-slate-200/30 rounded-xl p-3 text-xs text-slate-600 flex items-start gap-2.5 hover:bg-slate-50 hover:border-slate-200 transition-colors"
-                      >
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                        <span className="leading-tight font-medium">{highlight}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand-orange shrink-0">
+                    View Details
+                    <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                  </span>
                 </div>
               </div>
-              
-              {/* Bottom Scope list */}
-              <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold uppercase tracking-wide">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-orange" />
-                  Engineering Scope Delivered
-                </div>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand-orange hover:text-brand-orange-light transition-colors group/btn"
-                >
-                  Consult Similar Build
-                  <ChevronRight className="h-4 w-4 transform group-hover/btn:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

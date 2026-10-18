@@ -11,8 +11,13 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import RequestQuoteCTA from "@/components/home/RequestQuoteCTA";
 import RoofExplorer from "@/components/home/RoofExplorer";
 import Frames3DTeaser from "@/components/home/Frames3DTeaser";
+import { getFeaturedProjects } from "@/lib/content";
+import { getTestimonials } from "@/lib/content/site";
+import { descriptionToText } from "@/lib/richtext";
 
-export default function Home() {
+export default async function Home() {
+  const testimonials = await getTestimonials();
+  const featured = (await getFeaturedProjects(2)).map((p) => ({ ...p, description: descriptionToText(p.description) }));
   return (
     <>
       <Hero />
@@ -22,10 +27,10 @@ export default function Home() {
       <FeaturedProducts />
       <ServicesOverview />
       <WhyChooseUs />
-      <ProjectsOverview />
+      <ProjectsOverview projects={featured} />
       <ManufacturingExcellence />
       <ProductApplications />
-      {/* <TestimonialsSection /> */}
+      {testimonials.length > 0 && <TestimonialsSection />}
       <RequestQuoteCTA />
     </>
   );

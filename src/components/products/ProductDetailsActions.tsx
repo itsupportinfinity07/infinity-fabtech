@@ -3,9 +3,10 @@
 import React from "react";
 import { useQuote } from "@/context/QuoteContext";
 import { MessageCircle } from "lucide-react";
-import { companyConfig } from "@/data/company";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 export default function ProductDetailsActions({ slug, name }: { slug: string; name: string }) {
+  const { company: companyConfig } = useSiteContent();
   const { openQuote, setSelectedProduct } = useQuote();
 
   const handleInquiry = () => {

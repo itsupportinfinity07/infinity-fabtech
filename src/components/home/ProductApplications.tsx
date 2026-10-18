@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Building, Shield, Snowflake, Plane, Minimize2, Anchor, LucideIcon } from "lucide-react";
-import { landingContent } from "@/data/landing";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 const iconMap: Record<string, LucideIcon> = {
   Building,
@@ -14,6 +14,7 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 export default function ProductApplications() {
+  const { landing: landingContent } = useSiteContent();
   const content = landingContent.productApplications;
 
   return (

@@ -9,6 +9,7 @@ export const footerContent = {
         { label: "3D Frame Models", href: "/3d-models" },
         { label: "Engineering Services", href: "/services" },
         { label: "Completed Projects", href: "/projects" },
+        { label: "Careers", href: "/careers" },
         { label: "Contact Us", href: "/contact" },
       ],
     },

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -23,6 +23,8 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const honeypot = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -43,11 +45,23 @@ export default function ContactForm() {
 
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log("Contact inquiry submitted successfully:", data);
-    setIsSubmitting(false);
-    setIsSuccess(true);
+    setSubmitError("");
+    try {
+      const res = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ...data, source: "contact", website: honeypot.current?.value ?? "" }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Something went wrong. Please try again.");
+      }
+      setIsSuccess(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -68,7 +82,7 @@ export default function ContactForm() {
           Inquiry Submitted!
         </h3>
         <p className="mt-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
-          Thank you for contacting us. A sales engineer from our GIDC Ahmedabad office will review your specifications and contact you shortly.
+          Thank you for contacting us. A sales engineer from our Indore team will review your requirements and contact you shortly.
         </p>
         <button
           onClick={handleReset}
@@ -85,6 +99,7 @@ export default function ContactForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-6 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-6 lg:p-10 shadow-md relative overflow-hidden"
     >
+      <input ref={honeypot} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 opacity-0" />
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-orange to-brand-orange-light" />
 
       <div>
@@ -231,7 +246,10 @@ export default function ContactForm() {
         )}
       </div>
 
-      <button
+            {submitError && (
+        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{submitError}</p>
+      )}
+<button
         type="submit"
         disabled={isSubmitting}
         className="flex w-full items-center justify-center rounded-xl bg-brand-orange p-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white hover:bg-brand-orange-light transition-all disabled:bg-slate-400 shadow-md hover:shadow-lg cursor-pointer focus:outline-none ring-4 ring-transparent focus:ring-brand-orange/10"

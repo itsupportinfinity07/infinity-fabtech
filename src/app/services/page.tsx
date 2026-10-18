@@ -2,8 +2,8 @@ import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Compass, CheckSquare, Truck, Wrench, Building2, ArrowRight, Check, LucideIcon } from "lucide-react";
-import { services, servicesPageContent } from "@/data/services";
 import { constructMetadata } from "@/lib/metadata";
+import { getPage, getServices } from "@/lib/content/site";
 
 export const metadata: Metadata = constructMetadata({
   title: "Roofing Consultation & Supply Services",
@@ -19,7 +19,8 @@ const iconMap: Record<string, LucideIcon> = {
   Building2,
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const [servicesPageContent, services] = await Promise.all([getPage("servicesPage"), getServices()]);
   const content = servicesPageContent;
 
   return (

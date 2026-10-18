@@ -1,7 +1,9 @@
 import { MetadataRoute } from "next";
-import { products } from "@/data/products";
+import { getProducts } from "@/lib/content/site";
+import { getJobs, getProjects } from "@/lib/content";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [projects, jobs, products] = await Promise.all([getProjects(), getJobs(), getProducts()]);
   const siteUrl = "https://www.infinityfabtech.com";
   
   const staticRoutes = [
@@ -9,8 +11,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/about",
     "/products",
     "/3d-models",
+    "/projects",
     "/services",
-    "/industries",
+    "/careers",
+    "/request-quote",
     "/contact",
   ].map((route) => ({
     url: `${siteUrl}${route}`,
@@ -26,5 +30,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...productRoutes];
+  const projectRoutes = projects.map((p) => ({
+    url: `${siteUrl}/projects/${p.id}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  const jobRoutes = jobs.map((job) => ({
+    url: `${siteUrl}/careers/${job.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  }));
+
+  return [...staticRoutes, ...productRoutes, ...projectRoutes, ...jobRoutes];
 }

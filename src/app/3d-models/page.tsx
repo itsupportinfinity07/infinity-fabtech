@@ -37,11 +37,11 @@ const HIGHLIGHTS = [
 
 export default function ThreeDModelsPage() {
   return (
-    <div className="bg-brand-dark">
+    <div className="bg-white">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-brand-dark py-20 text-white lg:py-24">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-        <div className="absolute -mr-12 -mt-12 right-0 top-0 h-96 w-96 rounded-full bg-brand-orange/10 blur-3xl" />
+      <section className="relative overflow-hidden bg-white py-20 text-stone-900 lg:py-24">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#0000000a_1px,transparent_1px),linear-gradient(to_bottom,#0000000a_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+        <div className="absolute -mr-12 -mt-12 right-0 top-0 h-96 w-96 rounded-full bg-brand-orange/15 blur-3xl" />
         <div className="relative z-10 mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-orange/20 bg-brand-orange/10 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-brand-orange">
             <Box className="h-3.5 w-3.5" /> Interactive 3D Engineering Models
@@ -49,7 +49,7 @@ export default function ThreeDModelsPage() {
           <h1 className="mx-auto max-w-4xl text-4xl font-black leading-none tracking-tight sm:text-5xl lg:text-6xl">
             All 8 PEB Frame Types — In 3D
           </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-slate-400 sm:text-lg">
+          <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-stone-600 sm:text-lg">
             A full pre-engineered building you can orbit, section and take apart. Configure the
             frame the way your site needs it, then see every structural member and the products
             that go with it.
@@ -61,32 +61,32 @@ export default function ThreeDModelsPage() {
       <FrameExplorer3D showHeader={false} />
 
       {/* What you can do */}
-      <section className="border-t border-white/10 bg-brand-dark py-16">
+      <section className="border-t border-stone-200 bg-white py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-10 text-center text-2xl font-bold text-white sm:text-3xl">
+          <h2 className="mb-10 text-center text-2xl font-bold text-stone-900 sm:text-3xl">
             What you can do with the model
           </h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {HIGHLIGHTS.map((h) => (
               <div
                 key={h.title}
-                className="rounded-2xl border border-white/10 bg-white/5 p-6 transition-colors hover:border-brand-orange/40"
+                className="rounded-2xl border border-stone-200 bg-brand-gray p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-brand-orange/40 hover:shadow-lg"
               >
-                <div className="mb-4 inline-flex rounded-xl bg-brand-orange/15 p-2.5 text-brand-orange">
+                <div className="mb-4 inline-flex rounded-xl bg-brand-orange/10 p-2.5 text-brand-orange">
                   <h.icon className="h-5 w-5" />
                 </div>
-                <h3 className="mb-2 text-sm font-bold text-white">{h.title}</h3>
-                <p className="text-xs leading-relaxed text-slate-400">{h.text}</p>
+                <h3 className="mb-2 text-sm font-bold text-stone-900">{h.title}</h3>
+                <p className="text-sm leading-relaxed text-stone-600">{h.text}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-12 flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-8 text-center sm:flex-row sm:justify-between sm:text-left">
+          <div className="mt-12 flex flex-col items-center gap-4 rounded-2xl border border-stone-200 bg-brand-gray p-8 text-center sm:flex-row sm:justify-between sm:text-left">
             <div>
-              <h3 className="text-lg font-bold text-white">
+              <h3 className="text-lg font-bold text-stone-900">
                 Found the frame that fits your project?
               </h3>
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm text-stone-600">
                 Send us the configuration and our engineers will come back with a detailed
                 fastener and closer schedule.
               </p>

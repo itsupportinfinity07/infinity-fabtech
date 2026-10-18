@@ -5,7 +5,11 @@ import L from "leaflet";
 import { MapContainer, Marker, TileLayer, Tooltip, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { MapPin, X } from "lucide-react";
-import { CLIENT_LOCATIONS, type ClientLocation } from "@/data/clientLocations";
+import Link from "next/link";
+import type { MapLocation } from "@/lib/map-types";
+
+type ClientLocation = MapLocation;
+const countOf = (l: ClientLocation) => l.clients.length + l.projects.length;
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 
@@ -41,15 +45,17 @@ function FlyToActive({ active }: { active: ClientLocation | null }) {
   return null;
 }
 
-const BOUNDS = L.latLngBounds(CLIENT_LOCATIONS.map((l) => [l.lat, l.lng] as [number, number]));
-
-export default function IndiaClientMap() {
+export default function IndiaClientMap({ locations: CLIENT_LOCATIONS }: { locations: ClientLocation[] }) {
   const [active, setActive] = useState<ClientLocation | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const totalClients = useMemo(
-    () => CLIENT_LOCATIONS.reduce((s, l) => s + l.clients.length, 0),
-    []
+    () => CLIENT_LOCATIONS.reduce((s, l) => s + countOf(l), 0),
+    [CLIENT_LOCATIONS]
+  );
+  const bounds = useMemo(
+    () => (CLIENT_LOCATIONS.length ? L.latLngBounds(CLIENT_LOCATIONS.map((l) => [l.lat, l.lng] as [number, number])) : undefined),
+    [CLIENT_LOCATIONS]
   );
 
   const select = (loc: ClientLocation | null) => {
@@ -91,8 +97,7 @@ export default function IndiaClientMap() {
         {/* Map Container */}
         <div className="lg:col-span-2 relative rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg w-full h-[460px] sm:h-[560px] lg:h-[640px] isolate">
           <MapContainer
-            bounds={BOUNDS}
-            boundsOptions={{ padding: [40, 40] }}
+            {...(bounds ? { bounds, boundsOptions: { padding: [40, 40] as [number, number] } } : { center: [22.97, 78.65] as [number, number], zoom: 5 })}
             minZoom={4}
             scrollWheelZoom={false}
             className="h-full w-full"
@@ -113,8 +118,8 @@ export default function IndiaClientMap() {
                 <Marker
                   key={loc.id}
                   position={[loc.lat, loc.lng]}
-                  icon={pinIcon(loc.clients.length, active?.id === loc.id)}
-                  title={`${loc.city} — ${loc.clients.length} clients`}
+                  icon={pinIcon(countOf(loc), active?.id === loc.id)}
+                  title={`${loc.city} — ${countOf(loc)} projects & clients`}
                   eventHandlers={{ click: () => select(loc) }}
                 >
                   <Tooltip direction="top" offset={[0, -16]}>
@@ -140,7 +145,9 @@ export default function IndiaClientMap() {
                   </div>
                   <h3 className="text-lg font-black text-slate-900 leading-tight">{active.city}</h3>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    {active.clients.length} client{active.clients.length > 1 ? "s" : ""} served
+                    {active.projects.length > 0 && `${active.projects.length} project${active.projects.length > 1 ? "s" : ""}`}
+                    {active.projects.length > 0 && active.clients.length > 0 && " · "}
+                    {active.clients.length > 0 && `${active.clients.length} client${active.clients.length > 1 ? "s" : ""} served`}
                   </p>
                 </div>
                 <button
@@ -152,6 +159,25 @@ export default function IndiaClientMap() {
                 </button>
               </div>
               <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-2">
+                {active.projects.map((p) => (
+                  <Link
+                    key={p.id}
+                    href={`/projects/${p.id}`}
+                    className="flex items-center gap-3 p-2 rounded-xl bg-white border border-brand-orange/20 hover:border-brand-orange/50 hover:shadow-sm transition-all"
+                  >
+                    {p.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.image} alt="" className="h-12 w-16 rounded-lg object-cover flex-shrink-0" loading="lazy" />
+                    ) : (
+                      <div className="h-12 w-16 rounded-lg bg-slate-100 flex-shrink-0" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-slate-900 leading-snug">{p.name}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{[p.type, p.year].filter(Boolean).join(" · ")}</p>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-orange flex-shrink-0">View</span>
+                  </Link>
+                ))}
                 {active.clients.map((client, i) => {
                   const yearMatch = client.match(/^(.*?)\s*\((\d{4}(?:\s*&\s*\d{4})?)\)$/);
                   const name = yearMatch ? yearMatch[1] : client;
@@ -201,7 +227,7 @@ export default function IndiaClientMap() {
                       <p className="text-[10px] text-slate-400 truncate">{loc.state}</p>
                     </div>
                     <span className="flex-shrink-0 text-[10px] font-black text-brand-orange bg-brand-orange/10 px-2 py-0.5 rounded-full">
-                      {loc.clients.length}
+                      {countOf(loc)}
                     </span>
                   </button>
                 ))}

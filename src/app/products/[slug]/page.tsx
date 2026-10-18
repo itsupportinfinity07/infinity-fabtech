@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Tag, HelpCircle, ShieldCheck } from "lucide-react";
-import { products } from "@/data/products";
+import { getProduct, getProducts } from "@/lib/content/site";
 import { constructMetadata } from "@/lib/metadata";
 import { getProductSchema } from "@/lib/seo";
 import ProductGallery from "@/components/products/ProductGallery";
@@ -14,14 +14,14 @@ interface ProductPageProps {
 }
 
 export async function generateStaticParams() {
-  return products.map((prod) => ({
+  return (await getProducts()).map((prod) => ({
     slug: prod.slug,
   }));
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const product = products.find((p) => p.slug === resolvedParams.slug);
+  const product = await getProduct(resolvedParams.slug);
   if (!product) return {};
 
   return constructMetadata({
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const resolvedParams = await params;
-  const product = products.find((p) => p.slug === resolvedParams.slug);
+  const product = await getProduct(resolvedParams.slug);
 
   if (!product) {
     notFound();

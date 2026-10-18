@@ -3,10 +3,14 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, MapPin, Calendar, SquareStack, ChevronRight, Briefcase } from "lucide-react";
-import { projects } from "@/data/projects";
-import { landingContent } from "@/data/landing";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
-export default function ProjectsOverview() {
+export interface OverviewProject {
+  id: string; name: string; type: string; location: string; client: string; area: string; year: string; description: string;
+}
+
+export default function ProjectsOverview({ projects }: { projects: OverviewProject[] }) {
+  const { landing: landingContent } = useSiteContent();
   const content = landingContent.projectsOverview;
 
   return (
@@ -33,7 +37,7 @@ export default function ProjectsOverview() {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {projects.slice(0, 2).map((project) => (
+          {projects.map((project) => (
             <div
               key={project.id}
               className="relative overflow-hidden p-8 sm:p-10 rounded-3xl bg-[#f8fafc] border border-slate-200/50 shadow-[0_15px_30px_-5px_rgba(15,23,42,0.02)] hover:shadow-[0_30px_60px_-15px_rgba(242,100,25,0.08)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group"
@@ -60,7 +64,7 @@ export default function ProjectsOverview() {
                 </h3>
 
                 {/* Description */}
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                <p className="text-xs text-slate-500 leading-relaxed font-medium line-clamp-4">
                   {project.description}
                 </p>
 
@@ -89,7 +93,7 @@ export default function ProjectsOverview() {
                   Client: {project.client}
                 </span>
                 <Link
-                  href="/projects"
+                  href={`/projects/${project.id}`}
                   className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-brand-orange hover:text-brand-orange-light transition-colors focus:outline-none"
                 >
                   {content.detailsLabel}

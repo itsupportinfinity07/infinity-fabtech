@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight, PhoneCall } from "lucide-react";
 import { useQuote } from "@/context/QuoteContext";
-import { companyConfig } from "@/data/company";
 import { cn } from "@/lib/utils";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -19,6 +19,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const { company: companyConfig } = useSiteContent();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
@@ -68,7 +69,7 @@ export default function Navbar() {
                 "text-[9px] font-bold tracking-widest uppercase leading-none mt-1",
                 !isScrolled && pathname === "/" ? "text-brand-steel" : "text-brand-orange"
               )}>
-                Pvt. Ltd.
+                Private Limited
               </span>
             </Link>
 
@@ -183,7 +184,7 @@ export default function Navbar() {
                   Infinity Fabtech
                 </span>
                 <span className="text-[8px] font-bold tracking-widest text-brand-orange uppercase">
-                  Pvt. Ltd.
+                  Private Limited
                 </span>
               </div>
               <button

@@ -3,9 +3,10 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { useQuote } from "@/context/QuoteContext";
-import { landingContent } from "@/data/landing";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 export default function RequestQuoteCTA() {
+  const { landing: landingContent } = useSiteContent();
   const { openQuote } = useQuote();
   const content = landingContent.requestQuoteCta;
 

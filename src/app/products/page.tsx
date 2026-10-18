@@ -3,9 +3,9 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Tag } from "lucide-react";
-import { products } from "@/data/products";
 import { constructMetadata } from "@/lib/metadata";
 import ProductCardActions from "@/components/products/ProductCardActions";
+import { getProducts } from "@/lib/content/site";
 
 export const metadata: Metadata = constructMetadata({
   title: "Industrial Roofing Components Catalog",
@@ -13,7 +13,8 @@ export const metadata: Metadata = constructMetadata({
   slug: "products",
 });
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await getProducts();
   return (
     <div className="bg-slate-50 dark:bg-slate-950 pb-20">
       {/* Header Banner */}

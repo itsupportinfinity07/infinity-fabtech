@@ -3,10 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { companyConfig } from "@/data/company";
-import { landingContent } from "@/data/landing";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 export default function CompanyOverview() {
+  const { landing: landingContent, company: companyConfig } = useSiteContent();
   const content = landingContent.companyOverview;
 
   return (

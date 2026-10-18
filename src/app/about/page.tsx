@@ -17,9 +17,8 @@ import {
   Target,
   Eye,
 } from "lucide-react";
-import { companyConfig } from "@/data/company";
-import { aboutContent } from "@/data/about";
 import { constructMetadata } from "@/lib/metadata";
+import { getPage } from "@/lib/content/site";
 
 export const metadata: Metadata = constructMetadata({
   title: "About Our Infrastructure & Values",
@@ -60,7 +59,8 @@ const standardShortNames: Record<number, string> = {
   6: "IS:801",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [companyConfig, aboutContent] = await Promise.all([getPage("company"), getPage("about")]);
   const infra = companyConfig.infrastructure;
   const content = aboutContent;
 
@@ -205,22 +205,7 @@ export default function AboutPage() {
           </div>
 
           <div className="flex flex-col gap-12 lg:gap-16">
-            {[
-              {
-                src: "/images/about/ganesh_sankhla.png",
-                name: "Shree Ganesh Sankhla",
-                role: "Founder Chairman",
-                description:
-                  "He is the guiding force behind the company’s vision and growth. With his deep industry insight, strong values, and commitment to quality, he has laid a solid foundation for excellence in engineering and construction. His direction emphasizes innovation, integrity, and customer satisfaction, inspiring the entire organization to deliver reliable and high-quality solutions. Under his leadership, Infinity Fabtech continues to grow with a clear focus on long-term relationships and sustainable development.",
-              },
-              {
-                src: "/images/about/amit_sankhla.png",
-                name: "Mr. Amit Sankhla",
-                role: "Managing Director",
-                description:
-                  "He plays a key role in driving the growth and operational excellence of Infinity Fabtech Pvt. Ltd. With a sharp business acumen and a forward-thinking approach, he contributes significantly to strengthening the company’s market presence and execution capabilities. His focus on efficiency, innovation, and client satisfaction ensures that projects are delivered with precision and quality. Through his dedication and leadership, he continues to support the company’s vision of building reliable, high-performance infrastructure solutions.",
-              },
-            ].map((leader, i) => (
+            {content.leadership.map((leader, i) => (
               <div
                 key={i}
                 className="group relative flex flex-col md:flex-row rounded-3xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-xl hover:shadow-brand-orange/5 hover:-translate-y-2 transition-all duration-300 md:min-h-[420px]"
@@ -260,7 +245,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Gallery ── */}
+      {content.awards.some((img) => img.src) && (
       <section className="py-20 lg:py-28 bg-slate-50 dark:bg-slate-950">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-14 space-y-3">
@@ -273,11 +258,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { src: "/images/about/award1.png", alt: "Infinity Fabtech Event Stage" },
-              { src: "/images/about/award2.png", alt: "Award Presentation Ceremony" },
-              { src: "/images/about/award3.png", alt: "Team Celebration Ceremony" },
-            ].map((img, i) => (
+            {content.awards.filter((img) => img.src).map((img, i) => (
               <div
                 key={i}
                 className="group relative overflow-hidden rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-300 aspect-[4/3]"
@@ -294,6 +275,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ── Core Values ── */}
       <section className="py-20 lg:py-28 bg-slate-50 dark:bg-slate-950">
@@ -362,15 +344,7 @@ export default function AboutPage() {
 
               {/* Quick info badges */}
               <div className="pt-2 flex flex-wrap gap-2">
-                {[
-                  "CNC Plasma Cutters",
-                  "EOT Cranes",
-                  "H-Beam Welding",
-                  "C & Z Purlin Lines",
-                  "Sheeting Machines",
-                  "Shot Blasting SA-2.5",
-                  "Airless Painting"
-                ].map((eq) => (
+                {content.equipmentTags.map((eq) => (
                   <span
                     key={eq}
                     className="text-[9px] font-bold uppercase tracking-wide text-brand-blue dark:text-brand-steel bg-brand-blue/5 dark:bg-brand-blue/10 border border-brand-blue/15 dark:border-brand-blue/20 px-2.5 py-1 rounded-full"
@@ -382,13 +356,9 @@ export default function AboutPage() {
             </div>
 
             {/* Right: 2x2 Image Grid Gallery */}
+            {content.factoryImages.some((img) => img.src) && (
             <div className="lg:col-span-6 grid grid-cols-2 gap-4">
-              {[
-                { src: "/images/about/factory1.png", alt: "Roll Forming Machine" },
-                { src: "/images/about/factory2.png", alt: "Fabrication Area" },
-                { src: "/images/about/factory3.png", alt: "CNC Plasma Profiler" },
-                { src: "/images/about/factory4.png", alt: "Hydraulic Straightening Machine" },
-              ].map((img, idx) => (
+              {content.factoryImages.filter((img) => img.src).map((img, idx) => (
                 <div
                   key={idx}
                   className="group relative overflow-hidden rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shadow-sm hover:shadow-md transition-all duration-300 aspect-[4/3]"
@@ -403,6 +373,7 @@ export default function AboutPage() {
                 </div>
               ))}
             </div>
+            )}
 
           </div>
         </div>

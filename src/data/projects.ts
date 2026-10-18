@@ -3,6 +3,8 @@ import { Project } from "@/types/project";
 export const projects: Project[] = [
   {
     id: "alimco-production-center-ujjain",
+    image: "/images/products/peb-building.png",
+    gallery: ["/images/products/peb-building.png", "/images/products/heavy-fabrication.png", "/images/products/structural-steel.png", "/images/products/industrial-components.png", "/images/products/storage-racking.png", "/images/products/roofing-accessories.png"],
     name: "ALIMCO Production Center",
     location: "Ujjain, Madhya Pradesh, India",
     client: "ALIMCO (Artificial Limbs Manufacturing Corporation of India)",
@@ -24,6 +26,8 @@ export const projects: Project[] = [
   },
   {
     id: "tata-motors-indore",
+    image: "/images/products/structural-steel.png",
+    gallery: ["/images/products/structural-steel.png", "/images/products/peb-detail.png", "/images/products/storage-racking.png", "/images/products/roofing-accessories.png", "/images/products/heavy-fabrication.png", "/images/products/mezzanine-racking.png"],
     name: "Tata Motors Dealership & Service Centre",
     location: "Indore, Madhya Pradesh, India",
     client: "Tata Motors",
@@ -45,6 +49,8 @@ export const projects: Project[] = [
   },
   {
     id: "transworld-terminal-mundra",
+    image: "/images/products/storage-racking.png",
+    gallery: ["/images/products/storage-racking.png", "/images/products/industrial-components.png", "/images/products/heavy-fabrication.png", "/images/products/mezzanine-racking.png", "/images/products/peb-detail.png", "/images/products/peb-building.png"],
     name: "Transworld Terminal Warehouse (WH-4)",
     location: "Mundra, Gujarat, India",
     client: "Transworld Terminal Pvt. Ltd.",
@@ -66,6 +72,8 @@ export const projects: Project[] = [
   },
   {
     id: "garg-warehouse-nemawar",
+    image: "/images/products/heavy-fabrication.png",
+    gallery: ["/images/products/heavy-fabrication.png", "/images/products/roofing-accessories.png", "/images/products/peb-detail.png", "/images/products/peb-building.png", "/images/products/industrial-components.png", "/images/products/structural-steel.png"],
     name: "Garg Warehouse",
     location: "Nemawar, Madhya Pradesh, India",
     client: "Garg Group",
@@ -87,6 +95,8 @@ export const projects: Project[] = [
   },
   {
     id: "dbl-central-warehouse-pithampur",
+    image: "/images/products/peb-detail.png",
+    gallery: ["/images/products/peb-detail.png", "/images/products/mezzanine-racking.png", "/images/products/industrial-components.png", "/images/products/structural-steel.png", "/images/products/roofing-accessories.png", "/images/products/storage-racking.png"],
     name: "DBL Central Warehouse",
     location: "Pithampur, Madhya Pradesh, India",
     client: "DBL (Dilip Buildcon Limited)",
@@ -108,6 +118,8 @@ export const projects: Project[] = [
   },
   {
     id: "shreyash-securities-indore",
+    image: "/images/products/industrial-components.png",
+    gallery: ["/images/products/industrial-components.png", "/images/products/peb-building.png", "/images/products/roofing-accessories.png", "/images/products/storage-racking.png", "/images/products/mezzanine-racking.png", "/images/products/heavy-fabrication.png"],
     name: "Shreyash Securities Warehouse Complex",
     location: "Indore, Madhya Pradesh, India",
     client: "Shreyash Securities Pvt. Ltd.",
@@ -129,6 +141,8 @@ export const projects: Project[] = [
   },
   {
     id: "macleods-pharmaceuticals-sez",
+    image: "/images/products/roofing-accessories.png",
+    gallery: ["/images/products/roofing-accessories.png", "/images/products/structural-steel.png", "/images/products/mezzanine-racking.png", "/images/products/heavy-fabrication.png", "/images/products/peb-building.png", "/images/products/peb-detail.png"],
     name: "Macleods Pharmaceuticals SEZ Unit",
     location: "Madhya Pradesh, India",
     client: "Macleods Pharmaceuticals Ltd.",
@@ -150,6 +164,8 @@ export const projects: Project[] = [
   },
   {
     id: "katariya-packaging-ratlam",
+    image: "/images/products/mezzanine-racking.png",
+    gallery: ["/images/products/mezzanine-racking.png", "/images/products/storage-racking.png", "/images/products/peb-building.png", "/images/products/peb-detail.png", "/images/products/structural-steel.png", "/images/products/industrial-components.png"],
     name: "Katariya Packaging Industrial Shed",
     location: "Ratlam, Madhya Pradesh, India",
     client: "Katariya Packaging",
@@ -171,6 +187,8 @@ export const projects: Project[] = [
   },
   {
     id: "hi-tech-metal-forming-indore",
+    image: "/images/products/fasteners.png",
+    gallery: ["/images/products/peb-building.png", "/images/products/heavy-fabrication.png", "/images/products/structural-steel.png", "/images/products/industrial-components.png", "/images/products/storage-racking.png", "/images/products/roofing-accessories.png"],
     name: "Hi-Tech Metal Forming Unit II",
     location: "Indore, Madhya Pradesh, India",
     client: "Hi-Tech Metal Forming Industries",
@@ -192,6 +210,8 @@ export const projects: Project[] = [
   },
   {
     id: "associated-alcohol-badwah",
+    image: "/images/products/foam-closers.png",
+    gallery: ["/images/products/structural-steel.png", "/images/products/peb-detail.png", "/images/products/storage-racking.png", "/images/products/roofing-accessories.png", "/images/products/heavy-fabrication.png", "/images/products/mezzanine-racking.png"],
     name: "Associated Alcohol Distillery Units",
     location: "Badwah, Madhya Pradesh, India",
     client: "Associated Alcohol & Breweries Ltd.",

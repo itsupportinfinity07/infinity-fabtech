@@ -4,10 +4,11 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Tag } from "lucide-react";
-import { products } from "@/data/products";
 import { useQuote } from "@/context/QuoteContext";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 export default function FeaturedProducts() {
+  const { products } = useSiteContent();
   const { openQuote, setSelectedProduct } = useQuote();
 
   const handleInquiry = (slug: string) => {

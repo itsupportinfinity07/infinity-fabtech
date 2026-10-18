@@ -59,7 +59,7 @@ const Scene = dynamic(() => import("./Scene"), {
     <div className="flex h-full w-full items-center justify-center bg-slate-100">
       <div className="flex flex-col items-center gap-3">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-brand-orange" />
-        <span className="text-xs font-semibold text-slate-400">Loading 3D model…</span>
+        <span className="text-xs font-semibold text-stone-600">Loading 3D model…</span>
       </div>
     </div>
   ),
@@ -257,7 +257,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
   const pitchRatio = `1:${Math.round(1 / Math.tan((pitch * Math.PI) / 180))}`;
 
   return (
-    <section className={showHeader ? "bg-brand-dark py-20" : "bg-brand-dark pb-16 pt-10"} id="peb-3d-models">
+    <section className={showHeader ? "bg-brand-gray py-20" : "bg-brand-gray pb-16 pt-10"} id="peb-3d-models">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {showHeader && (
           <div className="mb-9 text-center">
@@ -265,7 +265,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
               initial={{ opacity: 0, y: -10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-orange/15 px-4 py-1.5 text-sm font-semibold text-orange-300"
+              className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-orange/15 px-4 py-1.5 text-sm font-semibold text-brand-orange"
             >
               <Box size={15} /> Interactive 3D Models
             </motion.span>
@@ -274,7 +274,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="mb-3 text-3xl font-bold text-white sm:text-4xl"
+              className="mb-3 text-3xl font-bold text-stone-900 sm:text-4xl"
             >
               All 8 PEB Frame Types — In 3D
             </motion.h2>
@@ -283,7 +283,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="mx-auto max-w-2xl text-slate-400"
+              className="mx-auto max-w-2xl text-stone-600"
             >
               Orbit, zoom and explode the full building model. Switch between solid, x-ray and
               frame-only views, then click any member to see the Infinity Fabtech products it needs.
@@ -293,7 +293,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
 
         {/* Frame type selector */}
         <div className="mb-6">
-          <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-widest text-slate-500">
+          <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-widest text-stone-600">
             Select Frame Type
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
@@ -307,22 +307,22 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   className={`overflow-hidden rounded-xl border-2 text-left transition-all duration-200 ${
                     on
                       ? "border-brand-orange bg-white shadow-lg shadow-brand-orange/20"
-                      : "border-white/10 bg-white/5 hover:border-white/25"
+                      : "border-stone-200 bg-white hover:border-stone-400"
                   }`}
                 >
-                  <div className={on ? "bg-white" : "bg-white/90"}>
+                  <div className={on ? "bg-white" : "bg-white"}>
                     <FrameThumb type={t} active={on} />
                   </div>
                   <div className="px-2 py-1.5">
                     <div
                       className={`truncate text-[10px] font-bold ${
-                        on ? "text-brand-orange" : "text-slate-200"
+                        on ? "text-brand-orange" : "text-stone-800"
                       }`}
                     >
                       {t.name}
                     </div>
                     <div
-                      className={`truncate text-[9px] ${on ? "text-orange-400/80" : "text-slate-500"}`}
+                      className={`truncate text-[9px] ${on ? "text-brand-orange/80" : "text-stone-600"}`}
                     >
                       {t.sub}
                     </div>
@@ -335,7 +335,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
 
         <div className="grid items-start gap-5 lg:grid-cols-[1fr_320px]">
           {/* Viewport */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
             <div
               ref={holder}
               className={`relative w-full bg-slate-100 ${
@@ -357,7 +357,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   onSelectOpening={pickOpening}
                 />
               ) : (
-                <div className="h-full w-full bg-slate-800" />
+                <div className="h-full w-full bg-slate-200" />
               )}
 
               {/* Viewport toolbar */}
@@ -370,7 +370,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                       className={`rounded-md px-2 py-1.5 text-[10px] font-bold transition-colors sm:px-2.5 sm:text-[11px] ${
                         mode === v.id
                           ? "bg-brand-orange text-white"
-                          : "text-slate-500 hover:text-slate-800"
+                          : "text-stone-600 hover:text-slate-800"
                       }`}
                     >
                       {v.label}
@@ -416,7 +416,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                       className={`rounded-lg border p-2 shadow-sm transition-colors ${
                         b.on
                           ? "border-brand-orange bg-brand-orange text-white"
-                          : "border-slate-200 bg-white/95 text-slate-500 hover:text-slate-800"
+                          : "border-slate-200 bg-white/95 text-stone-600 hover:text-slate-800"
                       }`}
                     >
                       {b.icon}
@@ -452,15 +452,15 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
             </div>
 
             {/* Legend */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 px-4 py-3">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-stone-200 px-4 py-3">
               {LEGEND.map(([c, t]) => (
-                <div key={t} className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                <div key={t} className="flex items-center gap-1.5 text-[11px] text-stone-600">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ background: c }} />
                   {t}
                 </div>
               ))}
               {activeFeatures.map((f) => (
-                <div key={f.id} className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                <div key={f.id} className="flex items-center gap-1.5 text-[11px] text-stone-600">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ background: f.color }} />
                   {f.label}
                 </div>
@@ -468,7 +468,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
             </div>
 
             {/* Controls */}
-            <div className="border-t border-white/10 bg-slate-900/40 p-5">
+            <div className="border-t border-stone-200 bg-stone-50 p-5">
               <div className="mb-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
                 <Slider label="Building Width" value={width} min={10} max={72} step={2} unit="m" onChange={setWidth} />
                 <Slider label="Eave Height" value={eave} min={4} max={14} step={0.5} unit="m" onChange={setEave} />
@@ -477,7 +477,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
               </div>
               <div className="mb-5 flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-400">Spans</span>
+                  <span className="text-xs font-semibold text-stone-600">Spans</span>
                   {([1, 2, 3] as const).map((n) => (
                     <button
                       key={n}
@@ -485,7 +485,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                       className={`h-8 w-9 rounded-lg border text-xs font-bold transition-all ${
                         spans === n
                           ? "border-brand-orange bg-brand-orange text-white"
-                          : "border-white/15 bg-white/5 text-slate-300"
+                          : "border-stone-300 bg-white text-stone-700"
                       }`}
                     >
                       {n}
@@ -493,7 +493,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   ))}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-400">Roof</span>
+                  <span className="text-xs font-semibold text-stone-600">Roof</span>
                   {([["pitched", "Pitched ▲"], ["mono", "Mono ⟍"]] as [Roof, string][]).map(
                     ([r, l]) => (
                       <button
@@ -502,7 +502,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                         className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition-all ${
                           roof === r
                             ? "border-brand-orange bg-brand-orange text-white"
-                            : "border-white/15 bg-white/5 text-slate-300"
+                            : "border-stone-300 bg-white text-stone-700"
                         }`}
                       >
                         {l}
@@ -511,14 +511,14 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   )}
                 </div>
               </div>
-              <div className="border-t border-white/10 pt-4">
+              <div className="border-t border-stone-200 pt-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-600">
                     Add / Remove Components
                   </span>
                   <button
                     onClick={() => setFeatures(DEF_FEATURES)}
-                    className="text-[10px] text-slate-500 underline hover:text-slate-300"
+                    className="text-[10px] text-stone-600 underline hover:text-stone-900"
                   >
                     Reset
                   </button>
@@ -534,7 +534,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                         className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${
                           on
                             ? "border-transparent text-white shadow-sm"
-                            : "border-white/15 bg-white/5 text-slate-400 hover:text-slate-200"
+                            : "border-stone-300 bg-white text-stone-600 hover:text-stone-900"
                         }`}
                         style={on ? { background: f.color, borderColor: f.color } : undefined}
                       >
@@ -545,8 +545,8 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   })}
                 </div>
                 {features.crane && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-                    <span className="text-xs font-semibold text-slate-400">EOT crane in</span>
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2">
+                    <span className="text-xs font-semibold text-stone-600">EOT crane in</span>
                     {spans === 1 ? (
                       <span
                         className="rounded-md px-2.5 py-1 text-[11px] font-bold text-white"
@@ -564,7 +564,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                       />
                     )}
                     {geo.cranes.length > 0 && (
-                      <span className="ml-auto text-[11px] text-slate-500">
+                      <span className="ml-auto text-[11px] text-stone-600">
                         {craneNote(geo)}
                         {spans === 1 && " · the bridge spans column to column"}
                       </span>
@@ -572,8 +572,8 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   </div>
                 )}
                 {features.mezzanine && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-                    <span className="text-xs font-semibold text-slate-400">
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2">
+                    <span className="text-xs font-semibold text-stone-600">
                       {spans === 1 ? "Mezzanine over the" : "Mezzanine in"}
                     </span>
                     {spans === 1
@@ -585,7 +585,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                             className={`rounded-md border px-2.5 py-1 text-[11px] font-bold transition-all ${
                               mezzSide === sd
                                 ? "border-transparent text-white"
-                                : "border-white/15 text-slate-300 hover:text-white"
+                                : "border-stone-300 text-stone-700 hover:text-stone-900"
                             }`}
                             style={mezzSide === sd ? { background: COLORS.mezzanine } : undefined}
                           >
@@ -602,7 +602,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                           />
                         )}
                     {geo.mezzanines.length > 0 && (
-                      <span className="ml-auto text-[11px] text-slate-500">
+                      <span className="ml-auto text-[11px] text-stone-600">
                         {mezzNote(geo, spans, mezzSide)}
                       </span>
                     )}
@@ -610,17 +610,17 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                 )}
               </div>
 
-              <div className="mt-5 border-t border-white/10 pt-4">
+              <div className="mt-5 border-t border-stone-200 pt-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-600">
                     <DoorOpen size={13} /> Entrances
                   </span>
-                  <span className="text-[10px] text-slate-500">
+                  <span className="text-[10px] text-stone-600">
                     Kept clear of columns and braced bays
                   </span>
                 </div>
                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-400">Add to</span>
+                  <span className="text-xs font-semibold text-stone-600">Add to</span>
                   {WALLS.map((w) => (
                     <button
                       key={w.id}
@@ -629,7 +629,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                       className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold transition-all ${
                         addWall === w.id
                           ? "border-brand-orange bg-brand-orange text-white"
-                          : "border-white/15 bg-white/5 text-slate-300"
+                          : "border-stone-300 bg-white text-stone-700"
                       }`}
                     >
                       {w.label}
@@ -642,18 +642,18 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                       key={k}
                       whileTap={{ scale: 0.94 }}
                       onClick={() => addOpening(k)}
-                      className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:border-white/30 hover:text-white"
+                      className="flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 transition-all hover:border-stone-400 hover:text-stone-900"
                     >
                       <Plus size={11} />
                       {OPENING_KINDS[k].label}
-                      <span className="text-[10px] font-normal text-slate-500">
+                      <span className="text-[10px] font-normal text-stone-600">
                         {OPENING_KINDS[k].width}×{OPENING_KINDS[k].height} m
                       </span>
                     </motion.button>
                   ))}
                 </div>
                 {notice && (
-                  <p className="mt-2 rounded-lg bg-amber-500/10 px-3 py-2 text-[11px] text-amber-300">
+                  <p className="mt-2 rounded-lg bg-amber-100 px-3 py-2 text-[11px] text-amber-800">
                     {notice}
                   </p>
                 )}
@@ -675,16 +675,16 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                         <li
                           key={o.id}
                           className={`rounded-lg border px-3 py-2 transition-colors ${
-                            on ? "border-brand-orange bg-brand-orange/10" : "border-white/10 bg-white/5"
+                            on ? "border-brand-orange bg-brand-orange/10" : "border-stone-200 bg-white"
                           }`}
                         >
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => pickOpening(on ? null : o.id)}
-                              className="flex-1 text-left text-xs font-semibold text-slate-200"
+                              className="flex-1 text-left text-xs font-semibold text-stone-800"
                             >
                               {OPENING_KINDS[o.kind].label}
-                              <span className="ml-2 font-normal text-slate-500">
+                              <span className="ml-2 font-normal text-stone-600">
                                 {wallLabel(o.wall)} · {o.width}×{o.height} m
                               </span>
                             </button>
@@ -692,7 +692,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                               onClick={() => removeOpening(o.id)}
                               title="Remove entrance"
                               aria-label={`Remove ${OPENING_KINDS[o.kind].label}`}
-                              className="rounded-md p-1 text-slate-500 hover:bg-white/10 hover:text-red-400"
+                              className="rounded-md p-1 text-stone-600 hover:bg-red-50 hover:text-red-600"
                             >
                               <Trash2 size={13} />
                             </button>
@@ -708,7 +708,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                                     className={`rounded-md border px-2 py-0.5 text-[10px] font-bold ${
                                       o.wall === w.id
                                         ? "border-brand-orange bg-brand-orange text-white"
-                                        : "border-white/15 text-slate-400 hover:text-slate-200"
+                                        : "border-stone-300 text-stone-600 hover:text-stone-900"
                                     }`}
                                   >
                                     {w.label}
@@ -740,7 +740,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                                 />
                               </div>
                               {maxH < spec.heightRange[1] && (
-                                <p className="-mt-1 text-[10px] text-slate-500">
+                                <p className="-mt-1 text-[10px] text-stone-600">
                                   Height limited to {maxH} m by the eave, rafter or mezzanine above this spot.
                                 </p>
                               )}
@@ -766,14 +766,14 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
 
           {/* Side panel */}
           <div className="space-y-4">
-            <div className="rounded-2xl bg-white p-5">
+            <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
               <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand-orange">
                 {type.name} — {type.sub}
               </div>
               <div className="mb-2 text-sm font-bold text-slate-800">
                 Practical: {type.practical}
               </div>
-              <p className="mb-3 text-xs leading-relaxed text-slate-500">{type.desc}</p>
+              <p className="mb-3 text-xs leading-relaxed text-stone-600">{type.desc}</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { l: "Width", v: `${width} m` },
@@ -786,7 +786,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                   { l: "Roof", v: roof === "pitched" ? "Pitched" : "Mono Slope" },
                 ].map(({ l, v }) => (
                   <div key={l} className="rounded-lg bg-slate-100 p-2">
-                    <div className="text-[9px] uppercase tracking-wide text-slate-400">{l}</div>
+                    <div className="text-[9px] uppercase tracking-wide text-stone-600">{l}</div>
                     <div className="mt-0.5 text-xs font-bold text-slate-800">{v}</div>
                   </div>
                 ))}
@@ -824,7 +824,7 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
                       : info.title}
                   </div>
                   <p className="mb-3 text-xs leading-relaxed text-slate-600">{info.detail}</p>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-stone-600">
                     Products required
                   </div>
                   <ul className="mt-1.5 space-y-1">
@@ -839,13 +839,13 @@ export default function FrameExplorer3D({ showHeader = true }: { showHeader?: bo
               )}
             </AnimatePresence>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-stone-600">
                 Products for This Config
               </h4>
               <ul className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
                 {productsFor(config, resolved.length).map((p) => (
-                  <li key={p} className="flex items-center gap-2 text-sm text-slate-300">
+                  <li key={p} className="flex items-center gap-2 text-sm text-stone-700">
                     <span className="h-1.5 w-1.5 flex-none rounded-full bg-brand-orange" />
                     {p}
                   </li>
@@ -887,8 +887,8 @@ function Slider({
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <label className="text-xs font-semibold text-slate-400">{label}</label>
-        <span className="text-sm font-bold tabular-nums text-orange-400">
+        <label className="text-xs font-semibold text-stone-600">{label}</label>
+        <span className="text-sm font-bold tabular-nums text-brand-orange">
           {value}
           {unit}
         </span>
@@ -903,10 +903,10 @@ function Slider({
         aria-label={label}
         className="h-1.5 w-full cursor-pointer appearance-none rounded-full"
         style={{
-          background: `linear-gradient(to right,#EA580C 0%,#EA580C ${pct}%,#334155 ${pct}%,#334155 100%)`,
+          background: `linear-gradient(to right,#EA580C 0%,#EA580C ${pct}%,#E7E5E4 ${pct}%,#E7E5E4 100%)`,
         }}
       />
-      <div className="mt-1 flex justify-between text-[10px] text-slate-500">
+      <div className="mt-1 flex justify-between text-[10px] text-stone-600">
         <span>
           {min}
           {unit}
@@ -937,7 +937,7 @@ function SpanToggles({
   const all = picked.length === spans;
   const cls = (on: boolean) =>
     `rounded-md border px-2.5 py-1 text-[11px] font-bold transition-all ${
-      on ? "border-transparent text-white" : "border-white/15 text-slate-300 hover:text-white"
+      on ? "border-transparent text-white" : "border-stone-300 text-stone-700 hover:text-stone-900"
     }`;
   return (
     <>

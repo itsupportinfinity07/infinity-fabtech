@@ -1,11 +1,10 @@
 import React from "react";
 import { Metadata } from "next";
 import { Mail, Phone, MapPin, Clock, MessageSquare, ArrowRight } from "lucide-react";
-import { companyConfig } from "@/data/company";
-import { contactContent } from "@/data/contact";
 import { constructMetadata } from "@/lib/metadata";
 import { getContactPageSchema } from "@/lib/seo";
 import ContactForm from "@/components/contact/ContactForm";
+import { getPage } from "@/lib/content/site";
 
 export const metadata: Metadata = constructMetadata({
   title: "Contact Our Sales Desk",
@@ -13,7 +12,8 @@ export const metadata: Metadata = constructMetadata({
   slug: "contact",
 });
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const [companyConfig, contactContent] = await Promise.all([getPage("company"), getPage("contact")]);
   const jsonLd = getContactPageSchema();
   const content = contactContent;
 

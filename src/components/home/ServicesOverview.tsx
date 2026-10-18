@@ -3,8 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Compass, CheckSquare, Truck, Wrench, Building2, LucideIcon } from "lucide-react";
-import { services } from "@/data/services";
-import { landingContent } from "@/data/landing";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 const iconMap: Record<string, LucideIcon> = {
   Compass,
@@ -15,6 +14,7 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 export default function ServicesOverview() {
+  const { landing: landingContent, services } = useSiteContent();
   const content = landingContent.servicesOverview;
 
   return (

@@ -1,37 +1,33 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 interface QuoteContextType {
-  isOpen: boolean;
+  /** Navigates to the request-quote page, pre-selecting the product set via setSelectedProduct. */
   openQuote: () => void;
-  closeQuote: () => void;
-  selectedProduct: string;
   setSelectedProduct: (product: string) => void;
 }
 
 const QuoteContext = createContext<QuoteContextType | undefined>(undefined);
 
 export function QuoteProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const router = useRouter();
+  // A ref (not state) so openQuote() called right after setSelectedProduct() sees the new value.
+  const selectedProduct = useRef("");
 
-  const openQuote = () => setIsOpen(true);
-  const closeQuote = () => {
-    setIsOpen(false);
-    setSelectedProduct("");
-  };
+  const setSelectedProduct = useCallback((product: string) => {
+    selectedProduct.current = product;
+  }, []);
+
+  const openQuote = useCallback(() => {
+    const product = selectedProduct.current;
+    selectedProduct.current = "";
+    router.push(product ? `/request-quote?product=${encodeURIComponent(product)}` : "/request-quote");
+  }, [router]);
 
   return (
-    <QuoteContext.Provider
-      value={{
-        isOpen,
-        openQuote,
-        closeQuote,
-        selectedProduct,
-        setSelectedProduct,
-      }}
-    >
+    <QuoteContext.Provider value={{ openQuote, setSelectedProduct }}>
       {children}
     </QuoteContext.Provider>
   );

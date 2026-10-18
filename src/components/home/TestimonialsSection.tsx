@@ -2,10 +2,10 @@
 
 import React from "react";
 import { Star, Quote } from "lucide-react";
-import { testimonials } from "@/data/testimonials";
-import { landingContent } from "@/data/landing";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
 export default function TestimonialsSection() {
+  const { landing: landingContent, testimonials } = useSiteContent();
   const content = landingContent.testimonials;
 
   return (
